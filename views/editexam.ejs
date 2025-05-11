@@ -1,0 +1,164 @@
+<%- include('../layout', { 
+    title: 'Evalio | Gérer les questions',
+    body: `
+    <!-- Hero Section -->
+    <section class="hero-gradient py-12 px-6 md:px-16">
+      <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+          <div>
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">Questions pour <%= locals.exam ? exam.title : '' %></h1>
+            <p class="text-lg text-blue-100">Ajoutez, modifiez ou supprimez des questions pour l'examen "<%= typeof exam !== 'undefined' ? exam.title : '' %>"</p>
+          </div>
+          <div class="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-4 mt-4 md:mt-0">
+            <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3">
+              <div class="text-sm text-white">
+                <span class="font-medium">Lien d'accès:</span>
+                <code class="ml-2 px-2 py-1 bg-white/20 rounded"><%= exam.accessUrl %></code>
+                <button onclick="navigator.clipboard.writeText('<%= exam.accessUrl %>')" class="ml-2 text-white hover:text-blue-100">
+                  <i class="ri-file-copy-line"></i>
+                </button>
+              </div>
+            </div>
+            <button id="addQuestionBtn" class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-full shadow-sm text-white bg-orange-600 hover:bg-orange-700">
+              <i class="ri-add-line mr-2"></i>
+              Ajouter une question
+            </button>
+          </div>
+        </div>
+  
+        <!-- Question List -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div id="questionList" class="divide-y divide-gray-200">
+            <% 
+            const questions = locals.exam?.questions || [];
+            if (questions.length > 0) { 
+            %>
+              <% questions.forEach((question, index) => { %>
+                <div class="question-item p-6 hover:bg-gray-50 transition" data-question-index="<%= index %>">
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-3">
+                        <h3 class="question-number text-lg font-semibold text-gray-900">Question <%= index + 1 %></h3>
+                        <div class="flex items-center space-x-2">
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            <i class="ri-time-line mr-1"></i>
+                            <%= question.duration %> min
+                          </span>
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <i class="ri-star-line mr-1"></i>
+                            <%= question.score %> points
+                          </span>
+                        </div>
+                      </div>
+                      <p class="mt-2 text-gray-600"><%= question.statement %></p>
+                      <% if (question.media?.type) { %>
+                        <div class="mt-2">
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            <i class="ri-attachment-2 mr-1"></i>
+                            <%= question.media.type %>
+                          </span>
+                        </div>
+                      <% } %>
+                      <% if (question.type === 'mcq' && Array.isArray(question.options)) { %>
+                        <div class="mt-3 space-y-2">
+                          <% question.options.forEach((option, optIndex) => { %>
+                            <div class="flex items-center">
+                              <span class="w-6 h-6 flex items-center justify-center <%= option.isCorrect ? 'text-green-600' : 'text-gray-400' %>">
+                                <i class="<%= option.isCorrect ? 'ri-checkbox-circle-fill' : 'ri-checkbox-blank-circle-line' %>"></i>
+                              </span>
+                              <span class="ml-2 text-sm text-gray-600"><%= option.text %></span>
+                            </div>
+                          <% }); %>
+                        </div>
+                      <% } %>
+                    </div>
+                    <div class="ml-4 flex-shrink-0 flex items-center space-x-2">
+                      <button type="button" class="edit-question-btn p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-full transition" data-index="<%= index %>">
+                        <i class="ri-edit-line"></i>
+                      </button>
+                      <button type="button" class="delete-question-btn p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-full transition" data-index="<%= index %>">
+                        <i class="ri-delete-bin-line"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              <% }); %>
+            <% } else { %>
+              <div class="p-6 text-center text-gray-500">
+                <p>Aucune question n'a été ajoutée à cet examen.</p>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </section>
+  
+    <!-- Add/Edit Question Modal -->
+    <div id="questionModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 backdrop-blur-sm flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+        <form id="questionForm" class="p-6 space-y-6">
+          <div class="flex justify-between items-center">
+            <h3 class="text-xl font-semibold text-gray-900" id="modalTitle">Ajouter une question</h3>
+            <button type="button" onclick="closeModal()" class="text-gray-400 hover:text-gray-500">
+              <i class="ri-close-line text-xl"></i>
+            </button>
+          </div>
+  
+          <!-- Question Type -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Type de question</label>
+            <div class="grid grid-cols-2 gap-4">
+              <button type="button" class="questionTypeBtn p-4 border rounded-lg text-center hover:border-blue-500 hover:bg-blue-50 transition" data-type="direct">
+                <i class="ri-text-spacing text-2xl text-blue-600"></i>
+                <span class="block mt-2 font-medium text-gray-900">Question directe</span>
+              </button>
+              <button type="button" class="questionTypeBtn p-4 border rounded-lg text-center hover:border-blue-500 hover:bg-blue-50 transition" data-type="mcq">
+                <i class="ri-list-check-2 text-2xl text-blue-600"></i>
+                <span class="block mt-2 font-medium text-gray-900">QCM</span>
+              </button>
+            </div>
+          </div>
+  
+          <!-- Question Statement -->
+          <div>
+            <label for="statement" class="block text-sm font-medium text-gray-700 mb-2">Énoncé</label>
+            <textarea id="statement" name="statement" rows="3" required
+              class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+          </div>
+  
+          <!-- Media Attachment -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Pièce jointe (optionnel)</label>
+            <div class="grid grid-cols-3 gap-4">
+              <button type="button" class="mediaTypeBtn p-4 border rounded-lg text-center hover:border-blue-500 hover:bg-blue-50 transition" data-type="image">
+                <i class="ri-image-line text-2xl text-blue-600"></i>
+                <span class="block mt-2 font-medium text-gray-900">Image</span>
+              </button>
+              <button type="button" class="mediaTypeBtn p-4 border rounded-lg text-center hover:border-blue-500 hover:bg-blue-50 transition" data-type="audio">
+                <i class="ri-mic-line text-2xl text-blue-600"></i>
+                <span class="block mt-2 font-medium text-gray-900">Audio</span>
+              </button>
+              <button type="button" class="mediaTypeBtn p-4 border rounded-lg text-center hover:border-blue-500 hover:bg-blue-50 transition" data-type="video">
+                <i class="ri-video-line text-2xl text-blue-600"></i>
+                <span class="block mt-2 font-medium text-gray-900">Vidéo</span>
+              </button>
+            </div>
+            <div id="mediaPreview" class="mt-4"></div>
+          </div>
+  
+          <!-- Save/Cancel Buttons -->
+          <div class="flex justify-end space-x-4">
+            <button type="button" onclick="closeModal()" class="px-6 py-2 bg-gray-300 text-gray-900 rounded-md hover:bg-gray-400">
+              Annuler
+            </button>
+            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+              Sauvegarder
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    `
+  }); %>
+  

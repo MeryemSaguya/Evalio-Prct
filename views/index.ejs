@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evalio - Plateforme d'Examens en Ligne</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+  <style>
+    .hero-gradient {
+      background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+    }
+    .feature-card {
+      transform: translateY(0);
+      transition: all 0.3s ease;
+    }
+    .feature-card:hover {
+      transform: translateY(-10px);
+    }
+    .number-circle {
+      transition: all 0.3s ease;
+    }
+    .step-card:hover .number-circle {
+      transform: scale(1.1);
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+    }
+    .cta-button {
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-button::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.6s ease, height 0.6s ease;
+    }
+    .cta-button:hover::after {
+      width: 300px;
+      height: 300px;
+    }
+    .parallax {
+      background-attachment: fixed;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50">
+  <%- include('partials/header') %>
+
+  <!-- Hero Section -->
+  <div class="hero-gradient text-white min-h-screen flex items-center">
+    <div class="max-w-7xl mx-auto px-6 py-24 md:py-32">
+      <div class="text-center" data-aos="fade-up" data-aos-duration="1000">
+        <h1 class="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">Bienvenue sur Evalio</h1>
+        <p class="text-xl md:text-2xl mb-8 animate-fade-in-delay">La plateforme d'examens en ligne moderne et sécurisée</p>
+        <% if (!user) { %>
+          <div class="space-x-4" data-aos="fade-up" data-aos-delay="200">
+            <a href="/register" class="cta-button bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold transition duration-300 inline-block">
+              Commencer
+            </a>
+            <a href="/login" class="cta-button bg-white hover:bg-gray-100 text-blue-600 px-8 py-3 rounded-lg font-semibold transition duration-300 inline-block">
+              Se connecter
+            </a>
+          </div>
+        <% } else { %>
+          <a href="/dashboard" class="cta-button bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold transition duration-300 inline-block" data-aos="fade-up" data-aos-delay="200">
+            Accéder au tableau de bord
+          </a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features Section -->
+  <div class="max-w-7xl mx-auto px-6 py-16 md:py-24">
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-800" data-aos="fade-up">Fonctionnalités Principales</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="feature-card bg-white p-8 rounded-xl shadow-lg" data-aos="fade-up" data-aos-delay="100">
+        <div class="text-blue-600 text-4xl mb-4 transform hover:scale-110 transition-transform duration-300">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-4 text-gray-800">Sécurité Avancée</h3>
+        <p class="text-gray-600">Protection contre la triche avec surveillance en temps réel et détection de fraude.</p>
+      </div>
+      <div class="feature-card bg-white p-8 rounded-xl shadow-lg" data-aos="fade-up" data-aos-delay="200">
+        <div class="text-orange-500 text-4xl mb-4 transform hover:scale-110 transition-transform duration-300">
+          <i class="fas fa-clock"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-4 text-gray-800">Gestion du Temps</h3>
+        <p class="text-gray-600">Minuteur intégré et suivi du temps pour chaque question.</p>
+      </div>
+      <div class="feature-card bg-white p-8 rounded-xl shadow-lg" data-aos="fade-up" data-aos-delay="300">
+        <div class="text-blue-600 text-4xl mb-4 transform hover:scale-110 transition-transform duration-300">
+          <i class="fas fa-chart-bar"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-4 text-gray-800">Analyse Détaillée</h3>
+        <p class="text-gray-600">Rapports et statistiques complets pour suivre les performances.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- How It Works Section -->
+  <div class="bg-gray-100 py-16 md:py-24 parallax" style="background-image: linear-gradient(rgba(243, 244, 246, 0.9), rgba(243, 244, 246, 0.9)), url('https://images.unsplash.com/photo-1501504905252-473c47e087f8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');">
+    <div class="max-w-7xl mx-auto px-6">
+      <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-800" data-aos="fade-up">Comment ça marche</h2>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div class="text-center step-card" data-aos="fade-up" data-aos-delay="100">
+          <div class="number-circle bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">1</div>
+          <h3 class="text-xl font-bold mb-2 text-gray-800">Créez un compte</h3>
+          <p class="text-gray-600">Inscription rapide et simple</p>
+        </div>
+        <div class="text-center step-card" data-aos="fade-up" data-aos-delay="200">
+          <div class="number-circle bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">2</div>
+          <h3 class="text-xl font-bold mb-2 text-gray-800">Créez un examen</h3>
+          <p class="text-gray-600">Personnalisez vos questions</p>
+        </div>
+        <div class="text-center step-card" data-aos="fade-up" data-aos-delay="300">
+          <div class="number-circle bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">3</div>
+          <h3 class="text-xl font-bold mb-2 text-gray-800">Invitez les étudiants</h3>
+          <p class="text-gray-600">Partagez le lien d'accès</p>
+        </div>
+        <div class="text-center step-card" data-aos="fade-up" data-aos-delay="400">
+          <div class="number-circle bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">4</div>
+          <h3 class="text-xl font-bold mb-2 text-gray-800">Analysez les résultats</h3>
+          <p class="text-gray-600">Consultez les performances</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA Section -->
+  <div class="hero-gradient text-white py-16 md:py-24">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+      <h2 class="text-3xl md:text-4xl font-bold mb-8" data-aos="fade-up">Prêt à commencer ?</h2>
+      <p class="text-xl mb-8" data-aos="fade-up" data-aos-delay="100">Rejoignez des milliers d'éducateurs qui font confiance à Evalio</p>
+      <% if (!user) { %>
+        <a href="/register" class="cta-button bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold transition duration-300 inline-block" data-aos="fade-up" data-aos-delay="200">
+          Créer un compte gratuit
+        </a>
+      <% } else { %>
+        <a href="/dashboard" class="cta-button bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold transition duration-300 inline-block" data-aos="fade-up" data-aos-delay="200">
+          Accéder au tableau de bord
+        </a>
+      <% } %>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
+
+  <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+  <script>
+    AOS.init({
+      duration: 800,
+      once: true,
+      offset: 100
+    });
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+          behavior: 'smooth'
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>

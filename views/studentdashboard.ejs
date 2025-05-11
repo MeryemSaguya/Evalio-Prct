@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evalio | Tableau de bord étudiant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <style>
+    body { font-family: 'Poppins', sans-serif; }
+    .hero-gradient { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- Navbar -->
+  <nav class="bg-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex">
+          <div class="flex-shrink-0 flex items-center">
+            <a href="/" class="text-2xl font-extrabold text-blue-600">Evalio</a>
+          </div>
+        </div>
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="relative inline-block text-left">
+              <button type="button" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900">
+                <img class="h-8 w-8 rounded-full object-cover" src="https://ui-avatars.com/api/?name=<%= user.firstName %>+<%= user.lastName %>" alt="<%= user.firstName %>">
+                <span class="ml-2"><%= user.firstName %> <%= user.lastName %></span>
+              </button>
+            </div>
+            <a href="/auth/logout" class="ml-4 inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 rounded-full">
+              <i class="ri-logout-box-r-line mr-2"></i> Déconnexion
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-gradient py-12 px-6 md:px-16">
+    <div class="max-w-7xl mx-auto">
+      <div class="mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">Bienvenue, <%= user.firstName %> !</h1>
+        <p class="text-lg text-blue-100">Accédez à vos examens et suivez vos résultats.</p>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white/10 backdrop-blur-sm p-6 rounded-lg">
+          <h3 class="text-xl font-semibold text-white mb-2">Examens disponibles</h3>
+          <p class="text-3xl font-bold text-white"><%= availableExams ? availableExams.length : 0 %></p>
+        </div>
+        <div class="bg-white/10 backdrop-blur-sm p-6 rounded-lg">
+          <h3 class="text-xl font-semibold text-white mb-2">Examens complétés</h3>
+          <p class="text-3xl font-bold text-white"><%= examHistory ? examHistory.filter(e => e.status === 'completed').length : 0 %></p>
+        </div>
+        <div class="bg-white/10 backdrop-blur-sm p-6 rounded-lg">
+          <h3 class="text-xl font-semibold text-white mb-2">Moyenne</h3>
+          <p class="text-3xl font-bold text-white">
+            <%= examHistory && examHistory.length > 0 
+              ? Math.round(examHistory.reduce((acc, exam) => acc + exam.score, 0) / examHistory.length) 
+              : 0 %>%
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto py-12 px-6 md:px-16">
+    <!-- Available Exams Section -->
+    <div class="mb-12">
+      <h2 class="text-2xl font-semibold text-gray-900 mb-6">Examens disponibles</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <% if (availableExams && availableExams.length > 0) { %>
+          <% availableExams.forEach(exam => { %>
+            <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-all">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900"><%= exam.title %></h3>
+                  <p class="text-sm text-gray-500 mt-1"><%= exam.subject %></p>
+                </div>
+                <span class="px-3 py-1 text-sm font-medium text-blue-800 bg-blue-100 rounded-full">
+                  <%= exam.duration %> min
+                </span>
+              </div>
+              <div class="mt-4 space-y-2">
+                <p class="text-sm text-gray-600 flex items-center">
+                  <i class="ri-calendar-line mr-2"></i>
+                  <%= new Date(exam.startDate).toLocaleDateString() %>
+                </p>
+                <p class="text-sm text-gray-600 flex items-center">
+                  <i class="ri-time-line mr-2"></i>
+                  <%= new Date(exam.startDate).toLocaleTimeString() %>
+                </p>
+              </div>
+              <div class="mt-6">
+                <a href="/student/exam/<%= exam._id %>" class="block w-full text-center bg-orange-600 text-white py-2 px-4 rounded-full hover:bg-orange-700 transition duration-200">
+                  Commencer l'examen
+                </a>
+              </div>
+            </div>
+          <% }); %>
+        <% } else { %>
+          <div class="col-span-full text-center py-12 bg-white rounded-lg shadow-lg">
+            <i class="ri-file-list-3-line text-4xl text-gray-400"></i>
+            <p class="mt-2 text-gray-500">Aucun examen disponible pour le moment.</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Exam History Section -->
+    <div>
+      <h2 class="text-2xl font-semibold text-gray-900 mb-6">Historique des examens</h2>
+      <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Examen</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% if (examHistory && examHistory.length > 0) { %>
+              <% examHistory.forEach(exam => { %>
+                <tr class="hover:bg-gray-50 transition">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900"><%= exam.title %></div>
+                    <div class="text-sm text-gray-500"><%= exam.subject %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= new Date(exam.completedDate).toLocaleDateString() %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-3 py-1 text-sm font-medium rounded-full
+                      <%= exam.score >= 70 ? 'bg-green-100 text-green-800' : 
+                          exam.score >= 50 ? 'bg-yellow-100 text-yellow-800' : 
+                          'bg-red-100 text-red-800' %>">
+                      <%= exam.score %>/100
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-3 py-1 text-sm font-medium rounded-full
+                      <%= exam.status === 'completed' ? 'bg-green-100 text-green-800' : 
+                          exam.status === 'in_progress' ? 'bg-blue-100 text-blue-800' : 
+                          'bg-gray-100 text-gray-800' %>">
+                      <%= exam.status === 'completed' ? 'Terminé' :
+                          exam.status === 'in_progress' ? 'En cours' :
+                          exam.status %>
+                    </span>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="4" class="px-6 py-4 text-center text-gray-500">
+                  Aucun examen passé pour le moment.
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
